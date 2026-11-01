@@ -1,0 +1,46 @@
+{
+  "branches": ["main", "master"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "./gradlew clean test :app:admcp:distZip :app:admcp:mcpbStage -PreleaseVersion=${nextRelease.version} --no-daemon && ./node_modules/.bin/mcpb pack app/admcp/build/mcpb app/admcp/build/distributions/admcp-${nextRelease.version}.mcpb && node scripts/prepare-mcp-registry.mjs ${nextRelease.version} && ./mcp-publisher validate && cd app/admcp/build/distributions && sha256sum admcp-${nextRelease.version}.zip > admcp-${nextRelease.version}.zip.sha256 && sha256sum admcp-${nextRelease.version}.mcpb > admcp-${nextRelease.version}.mcpb.sha256"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "app/admcp/build/distributions/admcp-*.zip",
+            "label": "admcp <%= nextRelease.version %> distribution"
+          },
+          {
+            "path": "app/admcp/build/distributions/admcp-*.mcpb",
+            "label": "admcp <%= nextRelease.version %> MCP bundle"
+          },
+          {
+            "path": "app/admcp/build/distributions/admcp-*.zip.sha256",
+            "label": "SHA-256 checksum (zip)"
+          },
+          {
+            "path": "app/admcp/build/distributions/admcp-*.mcpb.sha256",
+            "label": "SHA-256 checksum (MCPB)"
+          }
+        ],
+        "releaseBodyTemplate": "admcp <%= nextRelease.version %>\n\nLocal-first MCP server for Android debugging.\n\nDownload `admcp-<%= nextRelease.version %>.zip` for the portable distribution, or `admcp-<%= nextRelease.version %>.mcpb` for one-click installation in MCPB-compatible clients. Requires JDK 21.\n\nThe SHA-256 checksums are attached.",
+        "successComment": false,
+        "releasedLabels": false,
+        "failComment": false
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "publishCmd": "./mcp-publisher login github-oidc && ./mcp-publisher publish"
+      }
+    ]
+  ]
+}

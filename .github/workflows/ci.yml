@@ -1,0 +1,78 @@
+name: admcp CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        run: .\gradlew.bat clean test --no-daemon
+
+      - name: Test (Linux and macOS)
+        if: runner.os != 'Windows'
+        run: ./gradlew clean test --no-daemon
+
+      - name: Package distribution (Linux)
+        if: runner.os == 'Linux'
+        run: ./gradlew :app:admcp:distZip --no-daemon
+
+      - name: Set up Node.js (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install release tooling (Linux)
+        if: runner.os == 'Linux'
+        run: npm ci
+
+      - name: Validate and pack MCPB (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          ./gradlew :app:admcp:mcpbStage -PreleaseVersion=0.0.0 --no-daemon
+          ./node_modules/.bin/mcpb validate app/admcp/build/mcpb/manifest.json
+          ./node_modules/.bin/mcpb pack app/admcp/build/mcpb /tmp/admcp-0.0.0.mcpb
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
+          if-no-files-found: ignore
+          retention-days: 7

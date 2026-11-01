@@ -1,0 +1,55 @@
+# Gradle
+.gradle/
+gradle/gradle-daemon-jvm.properties
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Kotlin
+.kotlin/
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+out/
+
+# Local configuration
+local.properties
+*.local
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary output
+*.log
+hs_err_pid*
+replay_pid*
+tmp/
+temp/
+captures/
+
+# Generated Android, Java and profiling output
+*.apk
+*.aab
+*.aar
+*.dex
+*.class
+*.hprof
+*.perfetto-trace
+*.trace
+
+# Node release tooling
+node_modules/
+npm-debug.log*
+mcp-publisher
+mcp-publisher.exe
+
+.superpowers/
+

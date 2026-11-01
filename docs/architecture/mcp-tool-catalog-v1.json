@@ -1,0 +1,2344 @@
+{
+  "catalogVersion": 1,
+  "designRevision": "3.2",
+  "status": "STABLE",
+  "commonResultEnvelope": "../architecture/mcp-tool-catalog-v1.md#11-result-envelope",
+  "sideEffectClasses": [
+    "READ_ONLY",
+    "WORKSPACE_EXECUTION",
+    "DEVICE_MUTATION",
+    "APP_LAUNCH",
+    "UI_ACTION",
+    "DEBUGGER_CONTROL",
+    "PROFILING",
+    "CLOUD_READ"
+  ],
+  "tools": [
+    {
+      "name": "device_list",
+      "description": "List ADB-visible physical devices and emulators.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "includeOffline": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "capability": "adb.discovery",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "device_inspect",
+      "description": "Inspect one explicitly selected device, including API, ABI, display and optionally processes.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "includeProcesses": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "deviceId"
+        ]
+      },
+      "capability": "adb.device_inspect",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "toolchain_probe",
+      "description": "Resolve and verify host and target toolchains; reports provenance and capabilities.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "requiredKinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "JDK",
+                "ADB",
+                "ANDROID_CLI",
+                "GRADLE",
+                "ANDROID_SDK",
+                "BUILD_TOOLS",
+                "NDK",
+                "CMAKE",
+                "NINJA",
+                "LLDB",
+                "LLDB_DAP",
+                "LLDB_SERVER",
+                "FLUTTER",
+                "DART",
+                "SQLITE"
+              ]
+            }
+          },
+          "targetAbi": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "capability": "toolchain.probe",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "workspace_open",
+      "description": "Open a local project or APK workspace without executing project-controlled code.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "capability": "workspace.inspect",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "workspace_describe",
+      "description": "Describe modules, build system, targets, variants, packages, sources and artifacts.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "refresh": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "workspaceId"
+        ]
+      },
+      "capability": "workspace.describe",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "workspace_trust",
+      "description": "Grant a scoped trust permission for project-controlled operations after explicit host/user approval. This is not a sandbox.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "allowedOperations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "BUILD",
+                "PREVIEW",
+                "ANALYZE"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "executionMode": {
+            "type": "string",
+            "enum": [
+              "SAME_USER_UNSANDBOXED",
+              "OS_SANDBOXED"
+            ],
+            "default": "SAME_USER_UNSANDBOXED"
+          }
+        },
+        "required": [
+          "workspaceId",
+          "allowedOperations"
+        ]
+      },
+      "capability": "workspace.trust",
+      "sideEffect": "WORKSPACE_EXECUTION",
+      "confirmation": "MCP_HOST_ELICITATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "workspace_revoke_trust",
+      "description": "Revoke a workspace trust grant and invalidate cached permissions for future project-controlled execution.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspaceId"
+        ]
+      },
+      "capability": "workspace.trust.revoke",
+      "sideEffect": "WORKSPACE_EXECUTION",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "app_build",
+      "description": "Build an explicitly selected workspace target. Project code execution requires Workspace Trust.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "clean": {
+            "type": "boolean",
+            "default": false
+          },
+          "offline": {
+            "type": "boolean",
+            "default": false
+          },
+          "stacktrace": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "workspaceId",
+          "targetId"
+        ]
+      },
+      "capability": "workspace.build",
+      "sideEffect": "WORKSPACE_EXECUTION",
+      "confirmation": "WORKSPACE_TRUST",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "app_install",
+      "description": "Install an artifact on an explicitly selected device; supports a single APK or split set artifact.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "artifactId": {
+            "type": "string"
+          },
+          "replaceExisting": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "deviceId",
+          "artifactId"
+        ]
+      },
+      "capability": "device.install",
+      "sideEffect": "DEVICE_MUTATION",
+      "confirmation": "EXPLICIT_OPERATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "app_launch",
+      "description": "Launch an application on an explicitly selected device and return a verified process instance.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "activity": {
+            "type": "string"
+          },
+          "buildReference": {
+            "type": "string"
+          },
+          "waitForDebugger": {
+            "type": "boolean",
+            "default": false
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "deviceId",
+          "packageName"
+        ]
+      },
+      "capability": "app.launch",
+      "sideEffect": "APP_LAUNCH",
+      "confirmation": "EXPLICIT_OPERATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "session_start",
+      "description": "Create a device/project debugging session and optionally start the app and log collector.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "buildTargetId": {
+            "type": "string"
+          },
+          "backendIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "JDI",
+                "LLDB",
+                "DART_DAP"
+              ]
+            }
+          },
+          "startApp": {
+            "type": "boolean"
+          },
+          "captureLogcat": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "deviceId"
+        ]
+      },
+      "capability": "session.start",
+      "sideEffect": "APP_LAUNCH",
+      "confirmation": "EXPLICIT_OPERATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "session_status",
+      "description": "Read process, backend, suspension lease, capability and subsystem states.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "refreshCapabilities": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "session.read",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "session_stop",
+      "description": "Stop a session and clean up backend/collector resources; app force-stop is opt-in.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "stopApplication": {
+            "type": "boolean",
+            "default": false
+          },
+          "detachBackends": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "session.stop",
+      "sideEffect": "DEVICE_MUTATION",
+      "confirmation": "EXPLICIT_OPERATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "ui_inspect",
+      "description": "Capture a fresh normalized live UI hierarchy.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "full": {
+            "type": "boolean",
+            "default": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "ui.layout",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "ui_find",
+      "description": "Find UI elements with a selector and optional expected generation.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "selector": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "resourceId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "contentDescription": {
+                "type": "string"
+              },
+              "className": {
+                "type": "string"
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "exact": {
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "expectedGeneration": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId",
+          "selector"
+        ]
+      },
+      "capability": "ui.select",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "ui_act",
+      "description": "Perform a policy-checked UI action and verify the resulting UI state.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "TAP",
+              "LONG_PRESS",
+              "TYPE_TEXT",
+              "SCROLL",
+              "SWIPE",
+              "KEY",
+              "BACK",
+              "HOME",
+              "WAIT_FOR_STATE"
+            ]
+          },
+          "selector": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "resourceId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "contentDescription": {
+                "type": "string"
+              },
+              "className": {
+                "type": "string"
+              },
+              "exact": {
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "text": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "UP",
+              "DOWN",
+              "LEFT",
+              "RIGHT"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "expectedGeneration": {
+            "type": "integer"
+          },
+          "expectedState": {
+            "type": "string"
+          },
+          "confirmationToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "action"
+        ]
+      },
+      "capability": "ui.action",
+      "sideEffect": "UI_ACTION",
+      "confirmation": "MCP_HOST_ELICITATION_FOR_RISKY_ACTIONS",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "ui_screenshot",
+      "description": "Capture a screenshot, optionally annotated, and return image content plus artifact reference.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "annotate": {
+            "type": "boolean",
+            "default": false
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "PNG",
+              "JPEG"
+            ]
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "ui.screenshot",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "logcat_start",
+      "description": "Start persistent raw logcat capture for accessible buffers.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "buffers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "BINARY",
+              "PROTO"
+            ]
+          },
+          "maxBytes": {
+            "type": "integer"
+          },
+          "spoolQuotaBytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "logcat.capture",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "EXPLICIT_OPERATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "logcat_stop",
+      "description": "Stop a collector and finalize coverage and artifact metadata.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "collectorId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "collectorId"
+        ]
+      },
+      "capability": "logcat.capture_stop",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "logcat_query",
+      "description": "Query indexed logs with bounded pagination and process-instance filtering.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "pid": {
+            "type": "integer"
+          },
+          "tid": {
+            "type": "integer"
+          },
+          "priorities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tag": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "logcat.query",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "logcat_statistics",
+      "description": "Read collector metrics and accessible logd buffer statistics.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "collectorId": {
+            "type": "string"
+          },
+          "refresh": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "logcat.statistics",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "logcat_health",
+      "description": "Read collector loss, device log loss and coverage state.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "collectorId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "logcat.health",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "debug_attach",
+      "description": "Attach a selected debugger backend to a verified process instance. Pass switchBackend=true to detach another backend first for sequential JDI/LLDB use; simultaneous inspection is not supported.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "switchBackend": {
+            "type": "boolean"
+          },
+          "waitForAttach": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "processInstanceId",
+          "backendId"
+        ]
+      },
+      "capability": "debug.attach",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_detach",
+      "description": "Detach one debugger backend without implicitly terminating the debugging session or target app.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId"
+        ]
+      },
+      "capability": "debug.detach",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_status",
+      "description": "Read coordinated process execution, stop epoch and independent backend statuses.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "processInstanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "debug.status",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_breakpoint_add",
+      "description": "Add a source, function or exception breakpoint.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "breakpoint": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "line": {
+                "type": "integer"
+              },
+              "function": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "string"
+              },
+              "exceptionFilter": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "oneOf": [
+              {
+                "required": [
+                  "source",
+                  "line"
+                ]
+              },
+              {
+                "required": [
+                  "function"
+                ]
+              },
+              {
+                "required": [
+                  "exceptionFilter"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "breakpoint"
+        ]
+      },
+      "capability": "debug.breakpoints",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_breakpoints_list",
+      "description": "List breakpoints and their resolution state.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId"
+        ]
+      },
+      "capability": "debug.breakpoints.read",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_breakpoint_remove",
+      "description": "Remove a breakpoint by ID.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "breakpointId": {
+            "type": "string"
+          },
+          "processInstanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "breakpointId"
+        ]
+      },
+      "capability": "debug.breakpoints",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_pause",
+      "description": "Pause a target process or thread through the selected debugger backend.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId"
+        ]
+      },
+      "capability": "debug.execution",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_continue",
+      "description": "Resume only suspension leases owned by the requesting backend.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "integer"
+          },
+          "allThreads": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId"
+        ]
+      },
+      "capability": "debug.execution",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_step",
+      "description": "Step into, over or out on a suspended thread.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "INTO",
+              "OVER",
+              "OUT"
+            ]
+          },
+          "granularity": {
+            "type": "string",
+            "enum": [
+              "STATEMENT",
+              "LINE",
+              "INSTRUCTION"
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId",
+          "threadId",
+          "kind"
+        ]
+      },
+      "capability": "debug.execution",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_threads",
+      "description": "List threads and state for the selected backend.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "includeStates": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId"
+        ]
+      },
+      "capability": "debug.threads",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_stack",
+      "description": "Inspect stack frames from an active stop epoch.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "threadId": {
+            "type": "integer"
+          },
+          "stopEpoch": {
+            "type": "integer"
+          },
+          "startFrame": {
+            "type": "integer"
+          },
+          "levels": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId",
+          "threadId",
+          "stopEpoch"
+        ]
+      },
+      "capability": "debug.stack",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_variables",
+      "description": "Inspect locals and scopes using a valid epoch-scoped frame handle.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "frameHandle": {
+            "type": "string"
+          },
+          "start": {
+            "type": "integer"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "includeChildren": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "frameHandle"
+        ]
+      },
+      "capability": "debug.variables",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_evaluate",
+      "description": "Evaluate only policy-approved expressions. Java/Kotlin uses read-only subset; Dart evaluation is explicitly capability and side-effect classified; arbitrary native evaluation is unavailable in v1.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "frameHandle": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "JAVA",
+              "KOTLIN",
+              "DART"
+            ]
+          },
+          "expression": {
+            "type": "string"
+          },
+          "policyProfile": {
+            "type": "string",
+            "enum": [
+              "READ_ONLY",
+              "DART_RUNTIME_EVALUATION_WITH_APPROVAL"
+            ]
+          },
+          "confirmationToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "frameHandle",
+          "language",
+          "expression"
+        ]
+      },
+      "capability": "debug.evaluate",
+      "sideEffect": "DEBUGGER_CONTROL",
+      "confirmation": "MCP_HOST_ELICITATION_FOR_DART_RUNTIME_EVALUATION",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "B"
+    },
+    {
+      "name": "debug_modules",
+      "description": "List loaded modules and symbol/build-ID match information.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "includeBuildIds": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId"
+        ]
+      },
+      "capability": "debug.modules",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "debug_registers",
+      "description": "Read register groups for a stopped native thread.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "threadId": {
+            "type": "integer"
+          },
+          "stopEpoch": {
+            "type": "integer"
+          },
+          "registerGroups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "threadId",
+          "stopEpoch"
+        ]
+      },
+      "capability": "debug.registers",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "debug_memory_read",
+      "description": "Read bounded memory from a stopped native process.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "backendId": {
+            "type": "string",
+            "enum": [
+              "JDI",
+              "LLDB",
+              "DART_DAP"
+            ]
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536
+          },
+          "stopEpoch": {
+            "type": "integer"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "HEX",
+              "BASE64"
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "backendId",
+          "processInstanceId",
+          "address",
+          "size",
+          "stopEpoch"
+        ]
+      },
+      "capability": "debug.memory.read",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "profiler_systemtrace_start",
+      "description": "Start an explicit Perfetto/systemtrace profiling session.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300000
+          },
+          "profileConfig": {
+            "type": "string"
+          },
+          "bufferSizeKb": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId",
+          "durationMs"
+        ]
+      },
+      "capability": "profiler.systemtrace",
+      "sideEffect": "PROFILING",
+      "confirmation": "EXPLICIT_OPT_IN",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "profiler_systemtrace_stop",
+      "description": "Stop systemtrace and persist the Perfetto trace artifact.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "profilerSessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "profilerSessionId"
+        ]
+      },
+      "capability": "profiler.systemtrace",
+      "sideEffect": "PROFILING",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "profiler_heapdump_capture",
+      "description": "Capture a JVM heap dump for a supported debuggable process.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "processInstanceId"
+        ]
+      },
+      "capability": "profiler.jvm_heapdump",
+      "sideEffect": "PROFILING",
+      "confirmation": "EXPLICIT_OPT_IN",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "performance_trace_analyze",
+      "description": "Analyze a stored Perfetto trace artifact.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": []
+          }
+        },
+        "required": [
+          "artifactId"
+        ]
+      },
+      "capability": "profiler.trace_analysis",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "preview_list",
+      "description": "List build-time Compose Preview descriptors for a trusted workspace.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "modulePath": {
+            "type": "string"
+          },
+          "filter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspaceId"
+        ]
+      },
+      "capability": "android.preview",
+      "sideEffect": "WORKSPACE_EXECUTION",
+      "confirmation": "WORKSPACE_TRUST",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "preview_render",
+      "description": "Render a build-time Compose Preview artifact.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workspaceId": {
+            "type": "string"
+          },
+          "previewId": {
+            "type": "string"
+          },
+          "deviceProfile": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspaceId",
+          "previewId"
+        ]
+      },
+      "capability": "android.preview",
+      "sideEffect": "WORKSPACE_EXECUTION",
+      "confirmation": "WORKSPACE_TRUST",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "analyze_artifact",
+      "description": "Analyze an APK/AAB/AAR/JAR or stored build artifact with machine-readable output.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "json"
+            ],
+            "default": "json"
+          },
+          "analysisOptions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "includeManifest": {
+                "type": "boolean"
+              },
+              "includeDependencies": {
+                "type": "boolean"
+              },
+              "includeNativeLibraries": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "artifactId"
+            ],
+            "not": {
+              "required": [
+                "path"
+              ]
+            }
+          },
+          {
+            "required": [
+              "path"
+            ],
+            "not": {
+              "required": [
+                "artifactId"
+              ]
+            }
+          }
+        ]
+      },
+      "capability": "android.analyze",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "diagnostics_timeline",
+      "description": "Query an event timeline preserving source order and clock uncertainty.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "diagnostics.timeline",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "diagnostics_crashes",
+      "description": "List crashes and accessible ANR evidence for a session/process.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "processInstanceId": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "diagnostics.crashes",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "diagnostics_analyze",
+      "description": "Run evidence-based diagnosis over a selected session/time range.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "capability": "diagnostics.analyze",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "artifact_get",
+      "description": "Retrieve metadata, raw or redacted representation of a session-owned artifact.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "artifactId": {
+            "type": "string"
+          },
+          "representation": {
+            "type": "string",
+            "enum": [
+              "RAW",
+              "REDACTED_VIEW",
+              "METADATA"
+            ],
+            "default": "REDACTED_VIEW"
+          }
+        },
+        "required": [
+          "sessionId",
+          "artifactId"
+        ]
+      },
+      "capability": "artifacts.read",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": false,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "A"
+    },
+    {
+      "name": "signals_crashes",
+      "description": "Read authenticated Crashlytics field telemetry when available; otherwise return the local device crash buffer. Never initiates interactive authentication.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "timeRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ]
+          },
+          "filters": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "issueId": {
+                "type": "string"
+              },
+              "appVersion": {
+                "type": "string"
+              },
+              "crashType": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "projectId",
+          "timeRange"
+        ]
+      },
+      "capability": "crashlytics.signals",
+      "sideEffect": "CLOUD_READ",
+      "confirmation": "EXPLICIT_INVOCATION",
+      "optional": true,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    },
+    {
+      "name": "compose_inspect",
+      "description": "Runtime Compose inspection of reported accessibility semantics for TREE; RECOMPOSITION and TRACE report unsupported without Compose runtime instrumentation.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "inspectionKind": {
+            "type": "string",
+            "enum": [
+              "TREE",
+              "RECOMPOSITION",
+              "TRACE"
+            ]
+          }
+        },
+        "required": [
+          "sessionId",
+          "inspectionKind"
+        ]
+      },
+      "capability": "compose.deep_inspection",
+      "sideEffect": "READ_ONLY",
+      "confirmation": "NONE",
+      "optional": true,
+      "outputSchema": {
+        "$ref": "#/$defs/ToolResultEnvelope"
+      },
+      "releaseGate": "C"
+    }
+  ],
+  "resources": [
+    {
+      "uri": "admcp://catalog/v1",
+      "description": "Versioned public tool catalog and capability metadata."
+    },
+    {
+      "uri": "admcp://sessions/{sessionId}",
+      "description": "Current session, process, backend and subsystem states."
+    },
+    {
+      "uri": "admcp://sessions/{sessionId}/timeline",
+      "description": "Timeline event pages."
+    },
+    {
+      "uri": "admcp://sessions/{sessionId}/logcat/{collectorId}",
+      "description": "Raw/parsed log capture metadata and query guidance."
+    },
+    {
+      "uri": "admcp://sessions/{sessionId}/artifacts/{artifactId}",
+      "description": "Session-owned artifact metadata and content representation."
+    },
+    {
+      "uri": "admcp://sessions/{sessionId}/capabilities",
+      "description": "Current capability snapshot."
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ToolError": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "details"
+      ]
+    },
+    "CapabilityResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "AVAILABLE",
+            "LIMITED",
+            "UNAVAILABLE",
+            "UNKNOWN"
+          ]
+        },
+        "backend": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "ArtifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifactId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifactId",
+        "kind"
+      ]
+    },
+    "ToolResultEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "operationId": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "capability": {
+          "$ref": "#/$defs/CapabilityResult"
+        },
+        "data": {
+          "type": "object"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArtifactReference"
+          }
+        },
+        "error": {
+          "$ref": "#/$defs/ToolError"
+        }
+      },
+      "required": [
+        "ok",
+        "operationId"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "ok": {
+              "const": true
+            }
+          },
+          "required": [
+            "data"
+          ]
+        },
+        {
+          "properties": {
+            "ok": {
+              "const": false
+            }
+          },
+          "required": [
+            "error"
+          ]
+        }
+      ]
+    },
+    "ApprovalPurpose": {
+      "type": "string",
+      "enum": [
+        "WORKSPACE_TRUST",
+        "UI_ACTION",
+        "DART_RUNTIME_EVALUATION"
+      ]
+    },
+    "ApprovalRisk": {
+      "type": "string",
+      "enum": [
+        "WORKSPACE_CODE_EXECUTION",
+        "DESTRUCTIVE_ACTION",
+        "EXTERNAL_SIDE_EFFECT",
+        "UNKNOWN_SIDE_EFFECT",
+        "RUNTIME_CODE_EVALUATION"
+      ]
+    },
+    "ExplicitUserApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "receiptId": {
+          "type": "string"
+        },
+        "purpose": {
+          "$ref": "#/$defs/ApprovalPurpose"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "scopeHash": {
+          "type": "string"
+        },
+        "issuedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "receiptId",
+        "purpose",
+        "subjectId",
+        "scopeHash",
+        "issuedAt",
+        "expiresAt"
+      ]
+    }
+  },
+  "implementationPlanRevision": "3.2.1"
+}

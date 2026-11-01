@@ -1,0 +1,53 @@
+{
+  "manifest_version": "0.3",
+  "name": "admcp",
+  "display_name": "admcp - Android Debug MCP",
+  "version": "@version@",
+  "description": "Local-first MCP server for Android debugging via ADB, JDI, LLDB, and Flutter.",
+  "long_description": "admcp gives MCP clients direct access to a connected Android device or emulator. It exposes 51 tools for device discovery, UI hierarchy inspection, screenshots, logcat, file and process operations, JDI/LLDB debugging, Flutter/DAP debugging, Perfetto analysis, and diagnostics.\n\nRequirements: JDK 21, Android SDK platform-tools with adb, and a connected device or emulator. The MCP client must be able to launch local processes.",
+  "author": {
+    "name": "dima-xd",
+    "url": "https://github.com/dima-xd"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dima-xd/admcp.git"
+  },
+  "homepage": "https://github.com/dima-xd/admcp",
+  "documentation": "https://github.com/dima-xd/admcp#readme",
+  "support": "https://github.com/dima-xd/admcp/issues",
+  "license": "Apache-2.0",
+  "keywords": [
+    "mcp",
+    "android",
+    "adb",
+    "debugging",
+    "jdi",
+    "lldb",
+    "flutter",
+    "logcat",
+    "perfetto",
+    "ai-agents"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/launcher.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/launcher.js"
+      ],
+      "env": {}
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

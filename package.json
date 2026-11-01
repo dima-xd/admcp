@@ -1,0 +1,15 @@
+{
+  "name": "admcp-release",
+  "private": true,
+  "description": "Release automation for admcp",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/exec": "7.1.0",
+    "@semantic-release/github": "12.0.10",
+    "semantic-release": "25.0.9"
+  }
+}

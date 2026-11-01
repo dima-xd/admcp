@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.dima-xd/admcp",
+  "title": "admcp - Android Debug MCP",
+  "description": "Local-first MCP server for Android debugging via ADB, JDI, LLDB, and Flutter.",
+  "repository": {
+    "url": "https://github.com/dima-xd/admcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/dima-xd/admcp",
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/dima-xd/admcp/releases/download/v1.0.0/admcp-1.0.0.mcpb",
+      "version": "1.0.0",
+      "fileSha256": "288d4c4e3ac7f1c7e5d4c16abb3a0a4dfd4bbc324c8fd1ed71d168a9764159f8",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
